@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Users - TMS{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tickets:dashboard' %}">Home</a></li>
+<li class="breadcrumb-item active">Users</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Registered Users</h3>
+      </div>
+
+      <div class="card-body">
+        <!-- Search Form -->
+        <form method="get" class="mb-3">
+          <div class="row">
+            <div class="col-md-6">
+              <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Search
+              </button>
+            </div>
+            <div class="col-md-3">
+              <a href="{% url 'tickets:user_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Clear
+              </a>
+            </div>
+          </div>
+        </form>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Tickets</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user_obj in users %}
+              <tr>
+                <td>{{ user_obj.username }}</td>
+                <td>{{ user_obj.get_full_name|default:"-" }}</td>
+                <td>{{ user_obj.email }}</td>
+                <td>{{ user_obj.company|default:"-" }}</td>
+                <td>
+                  <span class="badge badge-info">{{ user_obj.ticket_count }}</span>
+                </td>
+                <td>
+                  {% if user_obj.is_verified %}
+                    <span class="badge badge-success">Verified</span>
+                  {% else %}
+                    <span class="badge badge-warning">Unverified</span>
+                  {% endif %}
+                  {% if user_obj.is_active %}
+                    <span class="badge badge-success">Active</span>
+                  {% else %}
+                    <span class="badge badge-danger">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>{{ user_obj.date_joined|date:"M d, Y" }}</td>
+                <td>
+                  <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#userModal{{ user_obj.id }}">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                </td>
+              </tr>
+
+              <!-- User Detail Modal -->
+              <div class="modal fade" id="userModal{{ user_obj.id }}" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">User Details: {{ user_obj.username }}</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <h6>Personal Information</h6>
+                          <p><strong>Username:</strong> {{ user_obj.username }}</p>
+                          <p><strong>Full Name:</strong> {{ user_obj.get_full_name|default:"Not provided" }}</p>
+                          <p><strong>Email:</strong> {{ user_obj.email }}</p>
+                          <p><strong>Phone:</strong> {{ user_obj.phone|default:"Not provided" }}</p>
+                          <p><strong>Company:</strong> {{ user_obj.company|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                          <h6>Account Information</h6>
+                          <p><strong>Role:</strong> {{ user_obj.get_role_display }}</p>
+                          <p><strong>Verified:</strong> 
+                            {% if user_obj.is_verified %}
+                              <span class="badge badge-success">Yes</span>
+                            {% else %}
+                              <span class="badge badge-warning">No</span>
+                            {% endif %}
+                          </p>
+                          <p><strong>Active:</strong> 
+                            {% if user_obj.is_active %}
+                              <span class="badge badge-success">Yes</span>
+                            {% else %}
+                              <span class="badge badge-danger">No</span>
+                            {% endif %}
+                          </p>
+                          <p><strong>Joined:</strong> {{ user_obj.date_joined|date:"F d, Y" }}</p>
+                          <p><strong>Total Tickets:</strong> {{ user_obj.ticket_count }}</p>
+                        </div>
+                      </div>
+                      {% if user_obj.address %}
+                      <hr>
+                      <h6>Address</h6>
+                      <p>{{ user_obj.address }}</p>
+                      {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+              <tr>
+                <td colspan="8" class="text-center">No users found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}">First</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <span class="page-link">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+              </span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}">Last</a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - TMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+  <!-- Stats Cards -->
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ total_tickets }}</h3>
+        <p>Total Tickets</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-ticket-alt"></i>
+      </div>
+      <a href="{% url 'tickets:ticket_list' %}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>{{ resolved_tickets }}</h3>
+        <p>Resolved Tickets</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <a href="{% url 'tickets:ticket_list' %}?status=resolved" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>{{ pending_tickets }}</h3>
+        <p>Pending Tickets</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-clock"></i>
+      </div>
+      <a href="{% url 'tickets:ticket_list' %}?status=pending" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>{{ open_tickets }}</h3>
+        <p>Open Tickets</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <a href="{% url 'tickets:ticket_list' %}?status=open" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% if user.is_admin %}
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-primary">
+      <div class="inner">
+        <h3>{{ total_users }}</h3>
+        <p>Total Users</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <a href="{% url 'tickets:user_list' %}" class="small-box-footer">
+        More info <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Tickets</h3>
+        <div class="card-tools">
+          <a href="{% url 'tickets:ticket_create' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus"></i> Create Ticket
+          </a>
+        </div>
+      </div>
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Title</th>
+              {% if user.is_admin %}<th>Client</th>{% endif %}
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in recent_tickets %}
+            <tr>
+              <td>{{ ticket.ticket_id }}</td>
+              <td>{{ ticket.title|truncatechars:50 }}</td>
+              {% if user.is_admin %}<td>{{ ticket.client.username }}</td>{% endif %}
+              <td>
+                <span class="badge badge-{% if ticket.status == 'open' %}danger{% elif ticket.status == 'pending' %}warning{% else %}success{% endif %}">
+                  {{ ticket.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <span class="badge badge-{% if ticket.priority == 'urgent' %}danger{% elif ticket.priority == 'high' %}warning{% elif ticket.priority == 'medium' %}info{% else %}secondary{% endif %}">
+                  {{ ticket.get_priority_display }}
+                </span>
+              </td>
+              <td>{{ ticket.created_at|date:"M d, Y" }}</td>
+              <td>
+                <a href="{% url 'tickets:ticket_detail' ticket.ticket_id %}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-eye"></i> View
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="{% if user.is_admin %}7{% else %}6{% endif %}" class="text-center">No tickets found.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if recent_tickets %}
+      <div class="card-footer">
+        <a href="{% if user.is_admin %}{% url 'tickets:admin_ticket_list' %}{% else %}{% url 'tickets:ticket_list' %}{% endif %}" class="btn btn-sm btn-secondary">
+          View All Tickets
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

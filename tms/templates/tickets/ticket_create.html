@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Ticket - TMS{% endblock %}
+{% block page_title %}Create Ticket{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tickets:dashboard' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'tickets:ticket_list' %}">Tickets</a></li>
+<li class="breadcrumb-item active">Create</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">Create New Support Ticket</h3>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+          {{ form|crispy }}
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Create Ticket
+          </button>
+          <a href="{% url 'tickets:ticket_list' %}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

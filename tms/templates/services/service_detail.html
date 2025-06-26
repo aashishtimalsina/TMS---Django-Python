@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ service.name }} - TMS{% endblock %}
+{% block page_title %}Service Details{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tickets:dashboard' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'services:service_list' %}">Services</a></li>
+<li class="breadcrumb-item active">{{ service.name }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ service.name }}</h3>
+        <div class="card-tools">
+          <span class="badge badge-primary badge-lg">Rs{{ service.price }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h5>Description</h5>
+        <p>{{ service.description|linebreaks }}</p>
+        
+        <hr>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <h6>Service Details</h6>
+            <ul class="list-unstyled">
+              <li><strong>Price:</strong>Rs {{ service.price }}</li>
+              <li><strong>Status:</strong> 
+                {% if service.is_active %}
+                  <span class="badge badge-success">Active</span>
+                {% else %}
+                  <span class="badge badge-danger">Inactive</span>
+                {% endif %}
+              </li>
+              <li><strong>Created:</strong> {{ service.created_at|date:"F d, Y" }}</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6>What's Included</h6>
+            <ul>
+              <li>24/7 Support Access</li>
+              <li>Priority Ticket Handling</li>
+              <li>Email Notifications</li>
+              <li>Dedicated Support Team</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        {% if already_purchased %}
+          <div class="alert alert-success mb-2">
+            <i class="fas fa-check-circle"></i> You have already purchased this service
+          </div>
+          <a href="{% url 'services:my_services' %}" class="btn btn-primary">
+            <i class="fas fa-list"></i> View My Services
+          </a>
+        {% else %}
+          <a href="{% url 'services:service_purchase' service.pk %}" class="btn btn-success btn-lg" 
+             onclick="return confirm('Are you sure you want to purchase this service for ${{ service.price }}?')">
+            <i class="fas fa-shopping-cart"></i> Purchase Service - ${{ service.price }}
+          </a>
+        {% endif %}
+        <a href="{% url 'services:service_list' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Services
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-success">
+      <div class="card-header">
+        <h3 class="card-title">Why Choose This Service?</h3>
+      </div>
+      <div class="card-body">
+        <div class="info-box">
+          <span class="info-box-icon bg-success"><i class="fas fa-thumbs-up"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Professional Support</span>
+            <span class="info-box-number">24/7</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-box-icon bg-info"><i class="fas fa-clock"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Response Time</span>
+            <span class="info-box-number">< 2 Hours</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-box-icon bg-warning"><i class="fas fa-users"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Expert Team</span>
+            <span class="info-box-number">Available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-info">
+      <div class="card-header">
+        <h3 class="card-title">Need Help?</h3>
+      </div>
+      <div class="card-body">
+        <p>Have questions about this service? Our support team is here to help!</p>
+        <a href="{% url 'tickets:ticket_create' %}" class="btn btn-info btn-block">
+          <i class="fas fa-question-circle"></i> Ask a Question
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

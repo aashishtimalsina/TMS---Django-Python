@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Ticket - TMS{% endblock %}
+{% block page_title %}Edit Ticket{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tickets:dashboard' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'tickets:ticket_list' %}">Tickets</a></li>
+<li class="breadcrumb-item"><a href="{% url 'tickets:ticket_detail' ticket.ticket_id %}">{{ ticket.ticket_id }}</a></li>
+<li class="breadcrumb-item active">Edit</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card card-warning">
+      <div class="card-header">
+        <h3 class="card-title">Edit Ticket: {{ ticket.ticket_id }}</h3>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+          {{ form|crispy }}
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-warning">
+            <i class="fas fa-save"></i> Update Ticket
+          </button>
+          <a href="{% url 'tickets:ticket_detail' ticket.ticket_id %}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

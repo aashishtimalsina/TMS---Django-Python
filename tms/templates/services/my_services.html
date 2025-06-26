@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}My Services - TMS{% endblock %}
+{% block page_title %}My Purchased Services{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tickets:dashboard' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'services:service_list' %}">Services</a></li>
+<li class="breadcrumb-item active">My Services</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">My Purchased Services</h3>
+        <div class="card-tools">
+          <a href="{% url 'services:service_list' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Browse Services
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body">
+        {% if purchases %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Purchase Date</th>
+                <th>Expiry Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for purchase in purchases %}
+              <tr>
+                <td>
+                  <strong>{{ purchase.service.name }}</strong>
+                  <br>
+                  <small class="text-muted">{{ purchase.service.description|truncatewords:15 }}</small>
+                </td>
+                <td>Rs {{ purchase.service.price }}</td>
+                <td>
+                  <span class="badge badge-{% if purchase.status == 'active' %}success{% elif purchase.status == 'expired' %}warning{% else %}danger{% endif %}">
+                    {{ purchase.get_status_display }}
+                  </span>
+                </td>
+                <td>{{ purchase.purchase_date|date:"M d, Y" }}</td>
+                <td>
+                  {% if purchase.expiry_date %}
+                    {{ purchase.expiry_date|date:"M d, Y" }}
+                  {% else %}
+                    <span class="text-muted">Never</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'services:service_detail' purchase.service.pk %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                  {% if purchase.status == 'active' %}
+                  <a href="{% url 'tickets:ticket_create' %}?service={{ purchase.service.pk }}" class="btn btn-sm btn-success">
+                    <i class="fas fa-ticket-alt"></i> Create Ticket
+                  </a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1">First</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+              <span class="page-link">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+              </span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center">
+          <div class="mb-4">
+            <i class="fas fa-shopping-cart fa-4x text-muted"></i>
+          </div>
+          <h4>No Services Purchased Yet</h4>
+          <p class="text-muted">You haven't purchased any services yet. Browse our available services to get started.</p>
+          <a href="{% url 'services:service_list' %}" class="btn btn-primary">
+            <i class="fas fa-shopping-cart"></i> Browse Services
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if purchases %}
+<div class="row">
+  <div class="col-md-4">
+    <div class="info-box">
+      <span class="info-box-icon bg-info"><i class="fas fa-cogs"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Total Services</span>
+        <span class="info-box-number">{{ purchases|length }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="info-box">
+      <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Active Services</span>
+        <span class="info-box-number">{{ purchases|length }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="info-box">
+      <span class="info-box-icon bg-warning"><i class="fas fa-ticket-alt"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Support Available</span>
+        <span class="info-box-number">24/7</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

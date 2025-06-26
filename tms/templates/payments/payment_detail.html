@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment {{ payment.payment_id }} - TMS{% endblock %}
+{% block page_title %}Payment Details{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'tickets:dashboard' %}">Home</a></li>
+<li class="breadcrumb-item"><a href="{% url 'payments:payment_list' %}">Payments</a></li>
+<li class="breadcrumb-item active">{{ payment.payment_id }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Payment Details: {{ payment.payment_id }}</h3>
+        <div class="card-tools">
+          <span class="badge badge-{% if payment.status == 'completed' %}success{% elif payment.status == 'pending' %}warning{% elif payment.status == 'failed' %}danger{% else %}secondary{% endif %} badge-lg">
+            {{ payment.get_status_display }}
+          </span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h5>Payment Information</h5>
+            <table class="table table-sm">
+              <tr>
+                <th>Payment ID:</th>
+                <td>{{ payment.payment_id }}</td>
+              </tr>
+              <tr>
+                <th>Amount:</th>
+                <td><strong>Rs{{ payment.amount }}</strong></td>
+              </tr>
+              <tr>
+                <th>Payment Method:</th>
+                <td>{{ payment.get_payment_method_display }}</td>
+              </tr>
+              <tr>
+                <th>Status:</th>
+                <td>
+                  <span class="badge badge-{% if payment.status == 'completed' %}success{% elif payment.status == 'pending' %}warning{% elif payment.status == 'failed' %}danger{% else %}secondary{% endif %}">
+                    {{ payment.get_status_display }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <th>Transaction ID:</th>
+                <td>{{ payment.transaction_id|default:"N/A" }}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <h5>Service & Customer</h5>
+            <table class="table table-sm">
+              <tr>
+                <th>Service:</th>
+                <td>{{ payment.service.name }}</td>
+              </tr>
+              {% if user.is_admin %}
+              <tr>
+                <th>Customer:</th>
+                <td>{{ payment.user.get_full_name|default:payment.user.username }}</td>
+              </tr>
+              <tr>
+                <th>Customer Email:</th>
+                <td>{{ payment.user.email }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                <th>Created:</th>
+                <td>{{ payment.created_at|date:"F d, Y H:i" }}</td>
+              </tr>
+              <tr>
+                <th>Updated:</th>
+                <td>{{ payment.updated_at|date:"F d, Y H:i" }}</td>
+              </tr>
+              {% if payment.completed_at %}
+              <tr>
+                <th>Completed:</th>
+                <td>{{ payment.completed_at|date:"F d, Y H:i" }}</td>
+              </tr>
+              {% endif %}
+            </table>
+          </div>
+        </div>
+
+        {% if payment.notes %}
+        <hr>
+        <h5>Notes</h5>
+        <p>{{ payment.notes|linebreaks }}</p>
+        {% endif %}
+
+        {% if payment.gateway_response %}
+        <hr>
+        <h5>Gateway Response</h5>
+        <pre class="bg-light p-3">{{ payment.gateway_response }}</pre>
+        {% endif %}
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'payments:payment_list' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Payments
+        </a>
+        {% if payment.status == 'completed' %}
+        <a href="#" class="btn btn-success disabled">
+          <i class="fas fa-check"></i> Payment Completed
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card card-success">
+      <div class="card-header">
+        <h3 class="card-title">Payment Summary</h3>
+      </div>
+      <div class="card-body">
+        <div class="info-box">
+          <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Amount Paid</span>
+            <span class="info-box-number">Rs.{{ payment.amount }}</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-box-icon bg-info"><i class="fas fa-calendar"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Payment Date</span>
+            <span class="info-box-number">{{ payment.created_at|date:"M d" }}</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-box-icon bg-warning"><i class="fas fa-credit-card"></i></span>
+          <div class="info-box-content">
+            <span class="info-box-text">Method</span>
+            <span class="info-box-number">{{ payment.get_payment_method_display|truncatechars:8 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if payment.status == 'completed' %}
+    <div class="card card-info">
+      <div class="card-header">
+        <h3 class="card-title">Related Actions</h3>
+      </div>
+      <div class="card-body">
+        <p>Your payment has been processed successfully.</p>
+        <a href="{% url 'services:my_services' %}" class="btn btn-info btn-block">
+          <i class="fas fa-cogs"></i> View My Services
+        </a>
+        <a href="{% url 'tickets:ticket_create' %}" class="btn btn-success btn-block">
+          <i class="fas fa-ticket-alt"></i> Create Support Ticket
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

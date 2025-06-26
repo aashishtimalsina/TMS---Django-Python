@@ -1,0 +1,45 @@
+{% extends 'auth_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - TMS{% endblock %}
+
+{% block content %}
+<div class="card card-outline card-primary">
+  <div class="card-header text-center">
+    <a href="{% url 'accounts:login' %}" class="h1"><b>TMS</b></a>
+    <p class="login-box-msg">Register a new account</p>
+  </div>
+  <div class="card-body">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <div class="row">
+        <div class="col-8">
+          <div class="icheck-primary">
+            <input type="checkbox" id="agreeTerms" name="terms" value="agree" required>
+            <label for="agreeTerms">
+              I agree to the <a href="#">terms</a>
+            </label>
+          </div>
+        </div>
+        <div class="col-4">
+          <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </div>
+      </div>
+    </form>
+
+    <a href="{% url 'accounts:login' %}" class="text-center">I already have an account</a>
+  </div>
+</div>
+{% endblock %}
